@@ -42,11 +42,12 @@ nvinfer1::DimsExprs TRTBEVPoolV2::getOutputDimensions(
   // input[3] == ranks_feat
   // input[4] == ranks_bev
   nvinfer1::DimsExprs ret;
-  ret.nbDims = 4;
+  ret.nbDims = 5;
   ret.d[0] = exprBuilder.constant(1); //Todo support batch>1
-  ret.d[1] = exprBuilder.constant(mOutHeight);
-  ret.d[2] = exprBuilder.constant(mOutWidth);
-  ret.d[3] = inputs[1].d[3];
+  ret.d[1] = inputs[1].d[3];
+  ret.d[2] = exprBuilder.constant(1);
+  ret.d[3] = exprBuilder.constant(mOutHeight);
+  ret.d[4] = exprBuilder.constant(mOutWidth);
   return ret;
 }
 
@@ -134,7 +135,7 @@ void TRTBEVPoolV2::serialize(void *buffer) const TRT_NOEXCEPT {
 
 TRTBEVPoolV2Creator::TRTBEVPoolV2Creator() {
   mPluginAttributes = std::vector<nvinfer1::PluginField>(
-      {nvinfer1::PluginField("output_z"), nvinfer1::PluginField("output_height"), nvinfer1::PluginField("output_width")});
+      {nvinfer1::PluginField("output_z_i"), nvinfer1::PluginField("output_height_i"), nvinfer1::PluginField("output_width_i")});
   mFC.nbFields = mPluginAttributes.size();
   mFC.fields = mPluginAttributes.data();
 }
@@ -145,19 +146,19 @@ const char *TRTBEVPoolV2Creator::getPluginVersion() const TRT_NOEXCEPT { return 
 
 nvinfer1::IPluginV2 *TRTBEVPoolV2Creator::createPlugin(
     const char *name, const nvinfer1::PluginFieldCollection *fc) TRT_NOEXCEPT {
-  int outWidth = 128;
-  int outHeight = 128;
+  int outWidth = 200;
+  int outHeight = 200;
   for (int i = 0; i < fc->nbFields; i++) {
     if (fc->fields[i].data == nullptr) {
       continue;
     }
     std::string field_name(fc->fields[i].name);
 
-    if (field_name.compare("output_height") == 0) {
+    if (field_name.compare("output_height_i") == 0) {
       outHeight = static_cast<const int *>(fc->fields[i].data)[0];
     }
 
-    if (field_name.compare("output_width") == 0) {
+    if (field_name.compare("output_width_i") == 0) {
       outWidth = static_cast<const int *>(fc->fields[i].data)[0];
     }
   }
