@@ -44,7 +44,7 @@ nvinfer1::DimsExprs TRTBEVPoolV2::getOutputDimensions(
   nvinfer1::DimsExprs ret;
   ret.nbDims = 5;
   ret.d[0] = exprBuilder.constant(1); //Todo support batch>1
-  ret.d[1] = inputs[1].d[3];
+  ret.d[1] = inputs[1].d[4];
   ret.d[2] = exprBuilder.constant(1);
   ret.d[3] = exprBuilder.constant(mOutHeight);
   ret.d[4] = exprBuilder.constant(mOutWidth);
@@ -97,7 +97,7 @@ int TRTBEVPoolV2::enqueue(const nvinfer1::PluginTensorDesc *inputDesc,
   switch (data_type) {
     case nvinfer1::DataType::kFLOAT:
       bev_pool_v2_set_zero(num_points, (float *)outputs[0]);
-      bev_pool_v2(feat_dims.d[3], interval_dims.d[0], (float *)inputs[0], (float *)inputs[1],
+      bev_pool_v2(feat_dims.d[4], interval_dims.d[0], (float *)inputs[0], (float *)inputs[1],
         (int *)inputs[2], (int *)inputs[3], (int *)inputs[4], (int *)inputs[5],(int *)inputs[6], (float *)outputs[0],
         stream);
       break;
