@@ -43,11 +43,11 @@ nvinfer1::DimsExprs TRTBEVPoolV2::getOutputDimensions(
   // input[4] == ranks_bev
   nvinfer1::DimsExprs ret;
   ret.nbDims = 5;
-  ret.d[0] = exprBuilder.constant(1); //Todo support batch>1
-  ret.d[1] = inputs[1].d[4];
+  ret.d[0] = inputs[1].d[0];
   ret.d[2] = exprBuilder.constant(1);
   ret.d[3] = exprBuilder.constant(mOutHeight);
   ret.d[4] = exprBuilder.constant(mOutWidth);
+  ret.d[1] = inputs[1].d[4];
   return ret;
 }
 
@@ -91,9 +91,12 @@ int TRTBEVPoolV2::enqueue(const nvinfer1::PluginTensorDesc *inputDesc,
                             cudaStream_t stream) TRT_NOEXCEPT {
   nvinfer1::Dims feat_dims = inputDesc[1].dims; // bnhwc
   nvinfer1::Dims interval_dims = inputDesc[5].dims; // n
-  nvinfer1::Dims out_dims = outputDesc[0].dims; //bhwc
+  nvinfer1::Dims out_dims = outputDesc[0].dims; //bzhwc
   auto data_type = inputDesc[0].type;
-  int num_points = out_dims.d[0]*out_dims.d[1]*out_dims.d[2]*out_dims.d[3];
+  int num_points = 1;
+  for (int i = 0; i < out_dims.nbDims; ++i) {
+      num_points *= out_dims.d[i];
+  }
   switch (data_type) {
     case nvinfer1::DataType::kFLOAT:
       bev_pool_v2_set_zero(num_points, (float *)outputs[0]);
