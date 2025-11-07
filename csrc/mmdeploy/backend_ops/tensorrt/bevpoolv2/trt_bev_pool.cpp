@@ -44,10 +44,10 @@ nvinfer1::DimsExprs TRTBEVPoolV2::getOutputDimensions(
   nvinfer1::DimsExprs ret;
   ret.nbDims = 5;
   ret.d[0] = inputs[1].d[0];
-  ret.d[2] = exprBuilder.constant(1);
-  ret.d[3] = exprBuilder.constant(mOutHeight);
-  ret.d[4] = exprBuilder.constant(mOutWidth);
-  ret.d[1] = inputs[1].d[4];
+  ret.d[1] = exprBuilder.constant(1);
+  ret.d[2] = exprBuilder.constant(mOutHeight);
+  ret.d[3] = exprBuilder.constant(mOutWidth);
+  ret.d[4] = inputs[1].d[4];
   return ret;
 }
 
@@ -85,9 +85,12 @@ size_t TRTBEVPoolV2::getWorkspaceSize(const nvinfer1::PluginTensorDesc *inputs, 
   return 0;
 }
 
+
 int TRTBEVPoolV2::enqueue(const nvinfer1::PluginTensorDesc *inputDesc,
-                            const nvinfer1::PluginTensorDesc *outputDesc, const void *const *inputs,
-                            void *const *outputs, void *workSpace,
+                            const nvinfer1::PluginTensorDesc *outputDesc, 
+                            const void *const *inputs,
+                            void *const *outputs, 
+                            void *workSpace,
                             cudaStream_t stream) TRT_NOEXCEPT {
   nvinfer1::Dims feat_dims = inputDesc[1].dims; // bnhwc
   nvinfer1::Dims interval_dims = inputDesc[5].dims; // n
